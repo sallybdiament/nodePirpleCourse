@@ -8,6 +8,7 @@ const http = require('http');
 const { type } = require('os');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder; // This is used the get the payload.
+const config = require('./config.js'); // Import the file 'config.js' with the environment variable.
 
 // The server should respond to all requests with a string 
 let server = http.createServer(function(req, res){
@@ -88,6 +89,7 @@ let server = http.createServer(function(req, res){
             let payloadString = JSON.stringify(payload); // This is the payload that the handler is sending back to the user.
             
             // Return the response:
+            res.setHeader('Content-Type', 'application/json'); // key and value: this is telling to the browser we are sending key and value.
             res.writeHead(statusCode);
             res.end(payloadString);
             console.log('StatusCode: ', statusCode, 'and the payload: ', payloadString);
@@ -101,9 +103,9 @@ let server = http.createServer(function(req, res){
     });
 });
 
-//Start teh server and have it listen on port 3000
-server.listen(3000, function(){
-    console.log( "The server is listening on port 3000");
+//Start the server and have it listen on port defined on config.js:
+server.listen(config.port, function(){
+    console.log( "The server is listening on port ", config.port, ' in', config.envName,'now');
 });
 
 // Define handlers for the router:
