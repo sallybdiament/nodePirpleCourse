@@ -5,6 +5,7 @@
 
 // Dependencies
 const http = require('http');
+const { type } = require('os');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder; // This is used the get the payload.
 
@@ -62,14 +63,41 @@ let server = http.createServer(function(req, res){
     req.on('end', function(){
         buffer +=decoder.end();
 
-    // Send the response:
-    res.end('Hello world!');
+        // Choose the handler this request should go to. If one is not found, use the notFound handler.
+        let choosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound; 
+        /* If the path exhists (it is not undefined), it should go to this path through the router, otherwise it should go to notFound router. */
+
+        // Construct the data object to send to the handler:
+        let data = {
+            trimmedPath,
+            queryStringObject,
+            method,
+            headers,
+            payload: buffer
+        };
+
+        // Route the request to the handler specified in the router:
+        choosenHandler(data, function(statusCode, payload) {
+            // Use the status code called back by the handler or default to 200:
+            statusCode = typeof statusCode === 'number' ? statusCode : 200;
+            
+            // Use the payload called back by the handler or defaults to an empty object:
+            payload = typeof(payload) == 'object' ? payload : {};
+
+            // We have to conver the payload to a string:
+            let payloadString = JSON.stringify(payload); // This is the payload that the handler is sending back to the user.
+            
+            // Return the response:
+            res.writeHead(statusCode);
+            res.end(payloadString);
+            console.log('StatusCode: ', statusCode, 'and the payload: ', payloadString);
+        });
     
     // Log the request path:
-    console.log('Request received on path: ', trimmedPath, ' with method: ', method,
-    'and with this query string parameters: ', queryStringObject,
-    '. Request received with headers: ', headers); //to see it, need to send the headers in postman or thunderclient.
-    console.log('and this payload: ', buffer); //to see it, need to send the headers in postman or thunderclient.
+    // console.log('Request received on path: ', trimmedPath, ' with method: ', method,
+    // 'and with this query string parameters: ', queryStringObject,
+    // '. Request received with headers: ', headers); //to see it, need to send the headers in postman or thunderclient.
+    // console.log('and this payload: ', buffer); //to see it, need to send the headers in postman or thunderclient.
     });
 });
 
@@ -77,3 +105,22 @@ let server = http.createServer(function(req, res){
 server.listen(3000, function(){
     console.log( "The server is listening on port 3000");
 });
+
+// Define handlers for the router:
+let handlers = {};
+
+// Sample handlers:
+handlers.sample = function(data, callback){
+    // Callback a http status code and a payload object.
+    callback(406, { 'name': 'sample handler' });
+};
+
+// Not found handler:
+handlers.notFound = function(data, callback){
+    callback(404);
+};
+
+// Define a request router:
+let router = {
+    'sample': handlers.sample
+}; // each path is unique, so we can use an object
