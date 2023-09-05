@@ -134,9 +134,14 @@ let unifiedServer = function(req, res){
 let handlers = {};
 
 // Sample handlers:
-handlers.sample = function(data, callback){
-    // Callback a http status code and a payload object.
-    callback(406, { 'name': 'sample handler' });
+// handlers.sample = function(data, callback){
+//     // Callback a http status code and a payload object.
+//     callback(406, { 'name': 'sample handler' });
+// };
+
+// Ping handler:
+handlers.ping = function(data, callback){
+    callback(200);
 };
 
 // Not found handler:
@@ -146,5 +151,6 @@ handlers.notFound = function(data, callback){
 
 // Define a request router:
 let router = {
-    'sample': handlers.sample
+    // 'sample': handlers.sample,
+    'ping': handlers.ping //easilly find out if the application is alive.
 }; // each path is unique, so we can use an object
