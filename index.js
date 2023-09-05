@@ -11,6 +11,24 @@ const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder; // This is used the get the payload.
 const config = require('./config.js'); // Import the file 'config.js' with the environment variable.
 const fs = require('fs'); // Require de fs build module of Node.js.
+const _data = require('./lib/data');
+
+// Testing to create a new file in folder .data::
+_data.create('test', 'newFile', {'foo': 'bar'}, function(err){
+    console.log('this is the err: ', err);
+});
+// // Testing to read a new file in folder .data::
+_data.read('test', 'newFile', function(err){
+    console.log('this is the err: ', err);
+});
+// Testing to update a new file in folder .data::
+_data.update('test', 'newFile', {'bla': 'buzz'},function(err, data){
+    console.log('this is the err: ', err, 'and this is the data: ', data);
+});
+// Testing to delete a file in folder .data::
+_data.delete('test', 'newFile',function(err){
+    console.log('this is the err: ', err);
+})
 
 // The server should respond to all requests with a string 
 let httpServer = http.createServer(function(req, res){
