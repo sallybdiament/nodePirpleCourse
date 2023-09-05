@@ -7,13 +7,15 @@ let environments = {};
 
 // Setting staging as the default environment:
 environments.staging = {
-    'port': 3000,
+    'httpPort': 3000,
+    'httpsPort': 3001, // we create the https folder for this.
     'envName': 'staging'
 };
 
 // Setting production environment:
 environments.production = {
-    'port': 5000,
+    'httpPort': 5000,
+    'httpsPort': 5001, // we create the https folder for this.
     'envName': 'production'
 };
 
@@ -22,7 +24,7 @@ let currentEnvironment = typeof(process.env.NODE_ENV === 'string') ? (process.en
 
 // Check the current environment is one of the environment that are defined above. 
 // If not , default to the staging environment:
-let environmentToExport = typeof(currentEnvironment) == 'object' ? environments[currentEnvironment] : environments.staging;
+let environmentToExport = typeof(environments[currentEnvironment]) == 'object' ? environments[currentEnvironment] : environments.staging;
 
 
 // Export the module:

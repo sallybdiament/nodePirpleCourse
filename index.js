@@ -5,13 +5,15 @@
 
 // Dependencies
 const http = require('http');
+const https = require('https');
 const { type } = require('os');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder; // This is used the get the payload.
 const config = require('./config.js'); // Import the file 'config.js' with the environment variable.
+const fs = require('fs'); // Require de fs build module of Node.js.
 
 // The server should respond to all requests with a string 
-let server = http.createServer(function(req, res){
+let httpServer = http.createServer(function(req, res){
     /* What is comming back from/in this callback "(function(req,res)"": 
         when we create the server and then tell it to listen, 
         when a request comes in, both of these objects are filled out and set to the function below,
@@ -20,6 +22,31 @@ let server = http.createServer(function(req, res){
         The 'req' object contains a bunch of information about what that user is asking for.
     */
 
+    // Instantiating the server and then start the server.
+    unifiedServer(req,res);
+
+});
+
+//Start the server and have it listen on port defined on config.js:
+httpServer.listen(config.httpPort, function(){
+    console.log( "The server is listening on port http ", config.httpPort, ' in', config.envName,'now');
+});
+
+// Instantiate the https server:
+let httpsServerOptions = {
+    'key': fs.readFileSync('./https/key.pem'), // reading the content of the file key.pem synchronously, so it can create a secure server.
+    'cert': fs.readFileSync('./https/cert.pem'), // readding the content of the file cert.pem synchronously, so it can create a secure server.
+};
+let httpsServer = https.createServer(httpsServerOptions, function(req,res){
+    unifiedServer(req, res);
+});
+// Start the https server:
+httpsServer.listen(config.httpsPort, function(){
+    console.log( "The server is listening on port https ", config.httpsPort, ' in', config.envName,'now');
+});
+
+// All the server logic for both http and https servers:
+let unifiedServer = function(req, res){
     // Get the URL and parse it:
     let parsedUrl = url.parse(req.url, true);
     /* In this case, we want the url the users is asking for, so we get it from the 'req' object (req.url)
@@ -101,12 +128,7 @@ let server = http.createServer(function(req, res){
     // '. Request received with headers: ', headers); //to see it, need to send the headers in postman or thunderclient.
     // console.log('and this payload: ', buffer); //to see it, need to send the headers in postman or thunderclient.
     });
-});
-
-//Start the server and have it listen on port defined on config.js:
-server.listen(config.port, function(){
-    console.log( "The server is listening on port ", config.port, ' in', config.envName,'now');
-});
+}
 
 // Define handlers for the router:
 let handlers = {};
