@@ -9,26 +9,28 @@ const https = require('https');
 const { type } = require('os');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder; // This is used the get the payload.
-const config = require('./config.js'); // Import the file 'config.js' with the environment variable.
+const config = require('./lib/config.js'); // Import the file 'config.js' with the environment variable.
 const fs = require('fs'); // Require de fs build module of Node.js.
 const _data = require('./lib/data');
+const handlers = require('./lib/handlers.js');
+const helpers = require('./lib/helpers.js');
 
 // Testing to create a new file in folder .data::
-_data.create('test', 'newFile', {'foo': 'bar'}, function(err){
-    console.log('this is the err: ', err);
-});
-// // Testing to read a new file in folder .data::
-_data.read('test', 'newFile', function(err){
-    console.log('this is the err: ', err);
-});
-// Testing to update a new file in folder .data::
-_data.update('test', 'newFile', {'bla': 'buzz'},function(err, data){
-    console.log('this is the err: ', err, 'and this is the data: ', data);
-});
-// Testing to delete a file in folder .data::
-_data.delete('test', 'newFile',function(err){
-    console.log('this is the err: ', err);
-})
+// _data.create('test', 'newFile', {'foo': 'bar'}, function(err){
+//     console.log('this is the err: ', err);
+// });
+// // // Testing to read a new file in folder .data::
+// _data.read('test', 'newFile', function(err){
+//     console.log('this is the err: ', err);
+// });
+// // Testing to update a new file in folder .data::
+// _data.update('test', 'newFile', {'bla': 'buzz'},function(err, data){
+//     console.log('this is the err: ', err, 'and this is the data: ', data);
+// });
+// // Testing to delete a file in folder .data::
+// _data.delete('test', 'newFile',function(err){
+//     console.log('this is the err: ', err);
+// })
 
 // The server should respond to all requests with a string 
 let httpServer = http.createServer(function(req, res){
@@ -119,7 +121,7 @@ let unifiedServer = function(req, res){
             queryStringObject,
             method,
             headers,
-            payload: buffer
+            payload: helpers.parseJsonToObject(buffer)
         };
 
         // Route the request to the handler specified in the router:
@@ -148,27 +150,9 @@ let unifiedServer = function(req, res){
     });
 }
 
-// Define handlers for the router:
-let handlers = {};
-
-// Sample handlers:
-// handlers.sample = function(data, callback){
-//     // Callback a http status code and a payload object.
-//     callback(406, { 'name': 'sample handler' });
-// };
-
-// Ping handler:
-handlers.ping = function(data, callback){
-    callback(200);
-};
-
-// Not found handler:
-handlers.notFound = function(data, callback){
-    callback(404);
-};
-
 // Define a request router:
 let router = {
     // 'sample': handlers.sample,
-    'ping': handlers.ping //easilly find out if the application is alive.
+    'ping': handlers.ping, //easilly find out if the application is alive, in the other file (handlers.js).
+    'users': handlers.users
 }; // each path is unique, so we can use an object
