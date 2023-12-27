@@ -154,5 +154,6 @@ let unifiedServer = function(req, res){
 let router = {
     // 'sample': handlers.sample,
     'ping': handlers.ping, //easilly find out if the application is alive, in the other file (handlers.js).
-    'users': handlers.users
+    'users': handlers.users,
+    'tokens': handlers.tokens // authentication mechanism
 }; // each path is unique, so we can use an object
